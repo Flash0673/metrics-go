@@ -33,7 +33,14 @@ func (m *Metrics) GetValue() string {
 	case Counter:
 		return fmt.Sprintf("%d", *m.Delta)
 	case Gauge:
-		return fmt.Sprintf("%.3f", *m.Value)
+		return strings.TrimRight(strings.TrimRight(fmt.Sprintf("%.10f", *m.Value), "0"), ".")
 	}
 	return ""
+}
+
+func (m *Metrics) GetDelta() int64 {
+	if m.Delta == nil {
+		return 0
+	}
+	return *m.Delta
 }

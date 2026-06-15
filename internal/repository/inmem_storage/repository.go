@@ -25,8 +25,8 @@ func NewMemStorage() *MemStorage {
 }
 
 func (m *MemStorage) GetAll() []*models.Metrics {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
+	m.mu.Lock()
+	defer m.mu.Unlock()
 	res := make([]*models.Metrics, 0, len(m.storage))
 	for _, m := range m.storage {
 		res = append(res, m)
@@ -36,9 +36,9 @@ func (m *MemStorage) GetAll() []*models.Metrics {
 
 func (m *MemStorage) Get(name, mType string) (*models.Metrics, error) {
 	key := generateKey(name, mType)
-	m.mu.RLock()
+	m.mu.Lock()
 	metrics, ok := m.storage[key]
-	m.mu.RUnlock()
+	m.mu.Unlock()
 	if !ok {
 		return nil, ErrNotFound
 	}
@@ -60,8 +60,8 @@ func (m *MemStorage) Set(name, mType string, value any) (*models.Metrics, error)
 	}
 	switch mType {
 	case models.Counter:
-		v := value.(int64)
-		metrics.Delta = &v
+		newValue := metrics.GetDelta() + value.(int64)
+		metrics.Delta = &newValue
 	case models.Gauge:
 		v := value.(float64)
 		metrics.Value = &v

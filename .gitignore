@@ -13,6 +13,7 @@
 
 # Binaries
 bin
+cmd/test
 #cmd/agent/main
 #cmd/agent/agent
 #cmd/server/main
