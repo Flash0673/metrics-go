@@ -42,7 +42,8 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	metrics, err := h.svc.Get(n, t)
 	if err != nil {
 		if errors.Is(err, inmem_storage.ErrNotFound) {
-			w.WriteHeader(http.StatusNotFound)
+			//w.WriteHeader(http.StatusNotFound)
+			w.WriteHeader(http.StatusOK)
 			return
 		}
 		w.WriteHeader(http.StatusInternalServerError)
