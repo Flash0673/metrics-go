@@ -6,8 +6,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/Flash0673/metrics-go/internal/handler/update_metrics/mocks"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-resty/resty/v2"
+	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
 )
 
@@ -118,8 +120,10 @@ func TestUpdateMetrics(t *testing.T) {
 			},
 		},
 	}
-
-	h := NewHandler()
+	ctrl := gomock.NewController(t)
+	m := mocks.NewMockService(ctrl)
+	m.EXPECT().Set(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, nil).AnyTimes()
+	h := NewHandler(m)
 	r := chi.NewRouter()
 	r.Post("/update/{type}/{name}/{value}", h.ServeHTTP)
 	s := httptest.NewServer(r)

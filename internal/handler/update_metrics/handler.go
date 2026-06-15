@@ -8,6 +8,8 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+//go:generate mockgen -destination=mocks/mocks.go -package=mocks . Service
+
 type Service interface {
 	Set(name, mType string, value any) (*models.Metrics, error)
 }
