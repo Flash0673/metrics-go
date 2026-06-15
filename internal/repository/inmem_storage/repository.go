@@ -3,6 +3,7 @@ package inmem_storage
 import (
 	"errors"
 	"fmt"
+	"sync"
 
 	models "github.com/Flash0673/metrics-go/internal/model"
 )
@@ -10,18 +11,22 @@ import (
 var ErrNotFound error = errors.New("not found")
 
 type MemStorage struct {
+	mu       *sync.RWMutex
 	storage  map[string]*models.Metrics
 	idGetter func() string
 }
 
 func NewMemStorage() *MemStorage {
 	return &MemStorage{
+		mu:       new(sync.RWMutex),
 		storage:  make(map[string]*models.Metrics),
 		idGetter: newIDGetter(),
 	}
 }
 
 func (m *MemStorage) GetAll() []*models.Metrics {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
 	res := make([]*models.Metrics, 0, len(m.storage))
 	for _, m := range m.storage {
 		res = append(res, m)
@@ -31,7 +36,9 @@ func (m *MemStorage) GetAll() []*models.Metrics {
 
 func (m *MemStorage) Get(name, mType string) (*models.Metrics, error) {
 	key := generateKey(name, mType)
+	m.mu.RLock()
 	metrics, ok := m.storage[key]
+	m.mu.RUnlock()
 	if !ok {
 		return nil, ErrNotFound
 	}
@@ -40,6 +47,7 @@ func (m *MemStorage) Get(name, mType string) (*models.Metrics, error) {
 
 func (m *MemStorage) Set(name, mType string, value any) (*models.Metrics, error) {
 	key := generateKey(name, mType)
+	m.mu.Lock()
 	metrics, ok := m.storage[key]
 	if !ok {
 		metrics = &models.Metrics{
@@ -61,6 +69,7 @@ func (m *MemStorage) Set(name, mType string, value any) (*models.Metrics, error)
 		return nil, fmt.Errorf("unknown metrics type: %s", mType)
 	}
 	m.storage[key] = metrics
+	m.mu.Unlock()
 	return metrics, nil
 }
 
