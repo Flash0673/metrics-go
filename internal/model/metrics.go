@@ -1,5 +1,10 @@
 package models
 
+import (
+	"fmt"
+	"strings"
+)
+
 const (
 	Counter = "counter"
 	Gauge   = "gauge"
@@ -16,4 +21,19 @@ type Metrics struct {
 	Delta *int64   `json:"delta,omitempty"`
 	Value *float64 `json:"value,omitempty"`
 	Hash  string   `json:"hash,omitempty"`
+}
+
+func (m *Metrics) GetName() string {
+	name := strings.Split(m.Hash, "_")[0]
+	return name
+}
+
+func (m *Metrics) GetValue() string {
+	switch m.MType {
+	case Counter:
+		return fmt.Sprintf("%d", *m.Delta)
+	case Gauge:
+		return fmt.Sprintf("%.3f", *m.Value)
+	}
+	return ""
 }

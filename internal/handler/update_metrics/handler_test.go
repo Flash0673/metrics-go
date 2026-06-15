@@ -1,10 +1,13 @@
 package update_metrics
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
+	"github.com/go-chi/chi/v5"
+	"github.com/go-resty/resty/v2"
 	"github.com/stretchr/testify/require"
 )
 
@@ -53,7 +56,7 @@ func TestUpdateMetrics(t *testing.T) {
 				method:      http.MethodPost,
 				metricsType: "gauge",
 				metricsName: "test",
-				metricValue: "",
+				metricValue: "s",
 			},
 			want: want{
 				statusCode: http.StatusBadRequest,
@@ -64,7 +67,7 @@ func TestUpdateMetrics(t *testing.T) {
 				method:      http.MethodPost,
 				metricsType: "counter",
 				metricsName: "test",
-				metricValue: "",
+				metricValue: "s",
 			},
 			want: want{
 				statusCode: http.StatusBadRequest,
@@ -86,7 +89,7 @@ func TestUpdateMetrics(t *testing.T) {
 				method:      http.MethodPost,
 				metricsType: "wrong",
 				metricsName: "test",
-				metricValue: "",
+				metricValue: "1.1",
 			},
 			want: want{
 				statusCode: http.StatusBadRequest,
@@ -116,29 +119,25 @@ func TestUpdateMetrics(t *testing.T) {
 		},
 	}
 
+	h := NewHandler()
+	r := chi.NewRouter()
+	r.Post("/update/{type}/{name}/{value}", h.ServeHTTP)
+	s := httptest.NewServer(r)
+
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
-			req := httptest.NewRequest(
-				tc.args.method,
-				//fmt.Sprintf(
-				//	"/update/%s/%s/%v",
-				//	tc.args.metricsType,
-				//	tc.args.metricsName,
-				//	tc.args.metricValue,
-				//),
-				"/update/{type}/{name}/{value}",
-				nil,
-			)
-			req.SetPathValue("type", tc.args.metricsType)
-			req.SetPathValue("name", tc.args.metricsName)
-			req.SetPathValue("value", tc.args.metricValue)
-			rw := httptest.NewRecorder()
-			h := NewHandler()
-			h.ServeHTTP(rw, req)
-			resp := rw.Result()
+			c := resty.New()
+			resp, err := c.R().Execute(tc.args.method, fmt.Sprintf(
+				"%s/update/%s/%s/%v",
+				s.URL,
+				tc.args.metricsType,
+				tc.args.metricsName,
+				tc.args.metricValue,
+			))
 
-			require.Equal(t, tc.want.statusCode, resp.StatusCode)
+			require.NoError(t, err)
+			require.Equal(t, tc.want.statusCode, resp.StatusCode())
 		})
 	}
 }

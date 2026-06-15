@@ -3,12 +3,21 @@ package update_metrics
 import (
 	"net/http"
 	"strconv"
+
+	models "github.com/Flash0673/metrics-go/internal/model"
+	"github.com/go-chi/chi/v5"
 )
 
-type Handler struct{}
+type Service interface {
+	Set(name, mType string, value any) (*models.Metrics, error)
+}
 
-func NewHandler() *Handler {
-	return &Handler{}
+type Handler struct {
+	svc Service
+}
+
+func NewHandler(svc Service) *Handler {
+	return &Handler{svc: svc}
 }
 
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -17,24 +26,26 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	t := r.PathValue("type")
-	n := r.PathValue("name")
-	v := r.PathValue("value")
+	t := chi.URLParam(r, "type")
+	n := chi.URLParam(r, "name")
+	v := chi.URLParam(r, "value")
 
 	if n == "" {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
+	var value any
+	var err error
 	switch t {
 	case "gauge":
-		_, err := strconv.ParseFloat(v, 64)
+		value, err = strconv.ParseFloat(v, 64)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 	case "counter":
-		_, err := strconv.ParseInt(v, 10, 64)
+		value, err = strconv.ParseInt(v, 10, 64)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			return
@@ -43,6 +54,12 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 
+	}
+
+	_, err = h.svc.Set(n, t, value)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	w.WriteHeader(http.StatusOK)
