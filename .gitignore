@@ -1,9 +1,9 @@
 # Binaries for programs and plugins
-#*.exe
-#*.exe~
-#*.dll
-#*.so
-#*.dylib
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
 
 # Test binary, built with `go test -c`
 *.test
@@ -13,10 +13,10 @@
 
 # Binaries
 bin
-cmd/agent/main
-cmd/agent/agent
-cmd/server/main
-cmd/server/server
+#cmd/agent/main
+#cmd/agent/agent
+#cmd/server/main
+#cmd/server/server
 
 # Dependency directories (remove the comment below to include it)
 vendor/
