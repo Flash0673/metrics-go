@@ -1,14 +1,12 @@
 package inmem_storage
 
 import (
-	"errors"
 	"fmt"
 	"sync"
 
 	models "github.com/Flash0673/metrics-go/internal/model"
+	"github.com/Flash0673/metrics-go/internal/repository/repo_err"
 )
-
-var ErrNotFound error = errors.New("not found")
 
 type MemStorage struct {
 	mu       *sync.RWMutex
@@ -25,8 +23,8 @@ func NewMemStorage() *MemStorage {
 }
 
 func (m *MemStorage) GetAll() []*models.Metrics {
-	m.mu.Lock()
-	defer m.mu.Unlock()
+	m.mu.RLock()
+	defer m.mu.RUnlock()
 	res := make([]*models.Metrics, 0, len(m.storage))
 	for _, m := range m.storage {
 		res = append(res, m)
@@ -36,41 +34,27 @@ func (m *MemStorage) GetAll() []*models.Metrics {
 
 func (m *MemStorage) Get(name, mType string) (*models.Metrics, error) {
 	key := generateKey(name, mType)
-	m.mu.Lock()
+	m.mu.RLock()
 	metrics, ok := m.storage[key]
-	m.mu.Unlock()
+	m.mu.RUnlock()
 	if !ok {
-		return nil, ErrNotFound
-	}
-	return metrics, nil
-}
-
-func (m *MemStorage) Set(name, mType string, value any) (*models.Metrics, error) {
-	key := generateKey(name, mType)
-	m.mu.Lock()
-	metrics, ok := m.storage[key]
-	if !ok {
-		metrics = &models.Metrics{
+		return &models.Metrics{
 			ID:    m.idGetter(),
 			MType: mType,
 			Delta: nil,
 			Value: nil,
 			Hash:  key,
-		}
+		}, repo_err.ErrNotFound
 	}
-	switch mType {
-	case models.Counter:
-		newValue := metrics.GetDelta() + value.(int64)
-		metrics.Delta = &newValue
-	case models.Gauge:
-		v := value.(float64)
-		metrics.Value = &v
-	default:
-		return nil, fmt.Errorf("unknown metrics type: %s", mType)
-	}
+	return metrics, nil
+}
+
+func (m *MemStorage) Set(name, mType string, metrics *models.Metrics) error {
+	key := generateKey(name, mType)
+	m.mu.Lock()
 	m.storage[key] = metrics
 	m.mu.Unlock()
-	return metrics, nil
+	return nil
 }
 
 func generateKey(name, mType string) string {

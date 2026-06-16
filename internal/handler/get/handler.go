@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	models "github.com/Flash0673/metrics-go/internal/model"
-	"github.com/Flash0673/metrics-go/internal/repository/inmem_storage"
+	"github.com/Flash0673/metrics-go/internal/repository/repo_err"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -41,7 +41,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	metrics, err := h.svc.Get(n, t)
 	if err != nil {
-		if errors.Is(err, inmem_storage.ErrNotFound) {
+		if errors.Is(err, repo_err.ErrNotFound) {
 			w.WriteHeader(http.StatusNotFound)
 			return
 		}

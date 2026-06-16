@@ -122,7 +122,7 @@ func TestUpdateMetrics(t *testing.T) {
 	}
 	ctrl := gomock.NewController(t)
 	m := mocks.NewMockService(ctrl)
-	m.EXPECT().Set(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, nil).AnyTimes()
+	m.EXPECT().Set(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil).AnyTimes()
 	h := NewHandler(m)
 	r := chi.NewRouter()
 	r.Post("/update/{type}/{name}/{value}", h.ServeHTTP)

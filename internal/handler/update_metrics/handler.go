@@ -11,7 +11,7 @@ import (
 //go:generate mockgen -destination=mocks/mocks.go -package=mocks . Service
 
 type Service interface {
-	Set(name, mType string, value any) (*models.Metrics, error)
+	Set(name, mType string, value any) error
 }
 
 type Handler struct {
@@ -40,13 +40,13 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var value any
 	var err error
 	switch t {
-	case "gauge":
+	case models.Gauge:
 		value, err = strconv.ParseFloat(v, 64)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-	case "counter":
+	case models.Counter:
 		value, err = strconv.ParseInt(v, 10, 64)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
@@ -58,7 +58,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	_, err = h.svc.Set(n, t, value)
+	err = h.svc.Set(n, t, value)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
