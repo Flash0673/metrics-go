@@ -10,6 +10,7 @@ require (
 	github.com/go-resty/resty/v2 v2.17.2 // indirect
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/spf13/pflag v1.0.10 // indirect
 	golang.org/x/mod v0.4.2 // indirect
 	golang.org/x/net v0.43.0 // indirect
 	golang.org/x/sys v0.35.0 // indirect

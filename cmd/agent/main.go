@@ -11,9 +11,11 @@ import (
 )
 
 func main() {
+	initFlags()
+
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
-	ag := agent.New()
+	ag := agent.New(targetUrl, reportInterval, pollInterval)
 
 	ag.Run(ctx)
 

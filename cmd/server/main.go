@@ -10,6 +10,8 @@ import (
 )
 
 func main() {
+	initFlags()
+
 	repoAgg := repository.NewAggregator()
 	svcAgg := service.NewAggregator(repoAgg)
 	handlerAgg := handler.NewAggregator(svcAgg)
@@ -18,7 +20,7 @@ func main() {
 	mux.Get("/", handlerAgg.GetAll.ServeHTTP)
 	mux.Get("/value/{type}/{name}", handlerAgg.Get.ServeHTTP)
 	mux.Post("/update/{type}/{name}/{value}", handlerAgg.UpdateMetrics.ServeHTTP)
-	if err := http.ListenAndServe(":8080", mux); err != nil {
+	if err := http.ListenAndServe(runServerAddr, mux); err != nil {
 		panic(err)
 	}
 }

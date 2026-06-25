@@ -12,10 +12,10 @@ type Client struct {
 	baseURL    string
 }
 
-func NewClient() *Client {
+func NewClient(targetUrl string) *Client {
 	return &Client{
 		httpClient: resty.New(),
-		baseURL:    "http://localhost:8080",
+		baseURL:    targetUrl,
 	}
 }
 
