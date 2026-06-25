@@ -20,13 +20,13 @@ type Agent struct {
 	pollCounter                  int
 }
 
-func New(targetUrl string, reportInterval, pollInterval time.Duration) *Agent {
+func New(addr string, reportInterval, pollInterval time.Duration) *Agent {
 	return &Agent{
 		rw: &sync.RWMutex{},
 		// TODO add config
 		pollInterval:   pollInterval,
 		reportInterval: reportInterval,
-		client:         client.NewClient(targetUrl),
+		client:         client.NewClient(addr),
 	}
 }
 

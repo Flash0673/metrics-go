@@ -15,7 +15,7 @@ func main() {
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
-	ag := agent.New(targetUrl, reportInterval, pollInterval)
+	ag := agent.New(addr, reportInterval, pollInterval)
 
 	ag.Run(ctx)
 

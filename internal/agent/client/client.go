@@ -12,10 +12,10 @@ type Client struct {
 	baseURL    string
 }
 
-func NewClient(targetUrl string) *Client {
+func NewClient(addr string) *Client {
 	return &Client{
 		httpClient: resty.New(),
-		baseURL:    targetUrl,
+		baseURL:    fmt.Sprintf("http://%s", addr),
 	}
 }
 
