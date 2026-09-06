@@ -20,14 +20,14 @@ type loggingResponseWriter struct {
 
 // Write переопределяем метод Write
 func (lr *loggingResponseWriter) Write(b []byte) (int, error) {
-	size, err := lr.Write(b)
+	size, err := lr.ResponseWriter.Write(b)
 	lr.responseData.size += size
 	return size, err
 }
 
 // WriteHeader переопределяем метод WriteHeader
 func (lr *loggingResponseWriter) WriteHeader(statusCode int) {
-	lr.WriteHeader(statusCode)
+	lr.ResponseWriter.WriteHeader(statusCode)
 	lr.responseData.statusCode = statusCode
 }
 
