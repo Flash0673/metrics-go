@@ -143,7 +143,7 @@ func TestUpdateMetrics(t *testing.T) {
 	m.EXPECT().Set(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil).AnyTimes()
 	h := NewHandler(m)
 	r := chi.NewRouter()
-	r.Post("/update", h.ServeHTTP)
+	r.Post("/update/", h.ServeHTTP)
 	s := httptest.NewServer(r)
 
 	for name, tc := range tests {
@@ -152,7 +152,7 @@ func TestUpdateMetrics(t *testing.T) {
 			c := resty.New()
 
 			resp, err := c.R().SetBody(tc.args.bodyGenerator()).Execute(tc.args.method, fmt.Sprintf(
-				"%s/update",
+				"%s/update/",
 				s.URL,
 			))
 
