@@ -15,7 +15,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TODO проверять что пришла метрика
 func TestUpdateMetrics(t *testing.T) {
 	t.Parallel()
 
