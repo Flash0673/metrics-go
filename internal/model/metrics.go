@@ -2,7 +2,7 @@ package models
 
 import (
 	"fmt"
-	"strings"
+	"strconv"
 )
 
 //go:generate easyjson -all metrics.go
@@ -37,7 +37,7 @@ func (m *Metrics) GetValue() string {
 	case Counter:
 		return fmt.Sprintf("%d", *m.Delta)
 	case Gauge:
-		return strings.TrimRight(strings.TrimRight(fmt.Sprintf("%.10f", *m.Value), "0"), ".")
+		return strconv.FormatFloat(*m.Value, 'f', -1, 64)
 	}
 	return ""
 }
