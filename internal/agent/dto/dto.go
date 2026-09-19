@@ -1,16 +1,22 @@
 package dto
 
-import "fmt"
+import (
+	"fmt"
+
+	models "github.com/Flash0673/metrics-go/internal/model"
+)
 
 type Metric interface {
 	GetName() string
 	GetType() string
 	GetValue() string
+	ToModel() models.Metrics
 }
 
 type Gauge struct {
-	Name  string  `json:"name"`
-	Value float64 `json:"value"`
+	Name       string  `json:"name"`
+	Value      float64 `json:"value"`
+	floatValue float64
 }
 
 func NewGauge(name string, value float64) *Gauge {
@@ -30,6 +36,14 @@ func (g *Gauge) GetType() string {
 
 func (g *Gauge) GetValue() string {
 	return fmt.Sprintf("%f", g.Value)
+}
+
+func (g *Gauge) ToModel() models.Metrics {
+	return models.Metrics{
+		ID:    g.Name,
+		MType: g.GetType(),
+		Value: &g.Value,
+	}
 }
 
 type Counter struct {
@@ -54,4 +68,12 @@ func (c *Counter) GetType() string {
 
 func (c *Counter) GetValue() string {
 	return fmt.Sprintf("%d", c.Value)
+}
+
+func (c *Counter) ToModel() models.Metrics {
+	return models.Metrics{
+		ID:    c.Name,
+		MType: c.GetType(),
+		Delta: &c.Value,
+	}
 }

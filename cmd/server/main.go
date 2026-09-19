@@ -18,6 +18,8 @@ func main() {
 		logger.Logger.Fatal("failed to init logger")
 	}
 
+	logger.Logger.Info("logger initialized")
+
 	repoAgg := repository.NewAggregator()
 	svcAgg := service.NewAggregator(repoAgg)
 	handlerAgg := handler.NewAggregator(svcAgg)
@@ -28,8 +30,12 @@ func main() {
 	mux.Use(middleware.RequestResponseLogging)
 
 	mux.Get("/", handlerAgg.GetAll.ServeHTTP)
+	mux.Post("/value", handlerAgg.GetJSON.ServeHTTP)
 	mux.Get("/value/{type}/{name}", handlerAgg.Get.ServeHTTP)
 	mux.Post("/update/{type}/{name}/{value}", handlerAgg.UpdateMetrics.ServeHTTP)
+	mux.Post("/update", handlerAgg.UpdateMetricsJson.ServeHTTP)
+
+	logger.Logger.Info("server initialized")
 	if err := http.ListenAndServe(runServerAddr, mux); err != nil {
 		panic(err)
 	}

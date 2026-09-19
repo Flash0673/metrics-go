@@ -39,7 +39,7 @@ func (m *MemStorage) Get(name, mType string) (*models.Metrics, error) {
 	m.mu.RUnlock()
 	if !ok {
 		return &models.Metrics{
-			ID:    m.idGetter(),
+			ID:    name,
 			MType: mType,
 			Delta: nil,
 			Value: nil,

@@ -5,27 +5,31 @@ import (
 	"strings"
 )
 
+//go:generate easyjson -all metrics.go
+
 const (
 	Counter = "counter"
 	Gauge   = "gauge"
 )
 
+// Metrics
 // NOTE: Не усложняем пример, вводя иерархическую вложенность структур.
 // Органичиваясь плоской моделью.
 // Delta и Value объявлены через указатели,
 // что бы отличать значение "0", от не заданного значения
 // и соответственно не кодировать в структуру.
+//
+//easyjson:json
 type Metrics struct {
 	ID    string   `json:"id"`
 	MType string   `json:"type"`
 	Delta *int64   `json:"delta,omitempty"`
 	Value *float64 `json:"value,omitempty"`
-	Hash  string   `json:"hash,omitempty"`
+	Hash  string   `json:"-"`
 }
 
 func (m *Metrics) GetName() string {
-	name := strings.Split(m.Hash, "_")[0]
-	return name
+	return m.ID
 }
 
 func (m *Metrics) GetValue() string {

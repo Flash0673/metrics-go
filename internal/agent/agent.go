@@ -2,7 +2,7 @@ package agent
 
 import (
 	"context"
-	"log"
+	"fmt"
 	"math/rand"
 	"runtime"
 	"sync"
@@ -10,6 +10,7 @@ import (
 
 	"github.com/Flash0673/metrics-go/internal/agent/client"
 	"github.com/Flash0673/metrics-go/internal/agent/dto"
+	"github.com/Flash0673/metrics-go/pkg/logging/logger"
 )
 
 type Agent struct {
@@ -26,7 +27,7 @@ func New(addr string, reportInterval, pollInterval time.Duration) *Agent {
 		// TODO add config
 		pollInterval:   pollInterval,
 		reportInterval: reportInterval,
-		client:         client.NewClient(addr),
+		client:         client.NewClient(addr).WithReportStrategy(client.Body),
 	}
 }
 
@@ -54,6 +55,7 @@ LOOP:
 }
 
 func (a *Agent) pollMetrics() {
+	logger.Logger.Info("polling metrics")
 	a.rw.Lock()
 	defer a.rw.Unlock()
 	runtime.ReadMemStats(&a.m)
@@ -61,6 +63,7 @@ func (a *Agent) pollMetrics() {
 }
 
 func (a *Agent) reportMetrics() {
+	logger.Logger.Info("reporting metrics")
 	a.rw.RLock()
 	snapShot := a.m
 	a.rw.RUnlock()
@@ -101,6 +104,6 @@ func (a *Agent) reportMetrics() {
 
 	err := a.client.ReportMetrics(metrcis)
 	if err != nil {
-		log.Printf("Error reporting metrics: %v", err)
+		logger.Logger.Info(fmt.Sprintf("Error reporting metrics: %v", err))
 	}
 }
