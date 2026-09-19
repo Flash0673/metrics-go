@@ -49,12 +49,12 @@ func (m *MemStorage) Get(name, mType string) (*models.Metrics, error) {
 	return metrics, nil
 }
 
-func (m *MemStorage) Set(name, mType string, metrics *models.Metrics) error {
+func (m *MemStorage) Set(name, mType string, metrics *models.Metrics) (*models.Metrics, error) {
 	key := generateKey(name, mType)
 	m.mu.Lock()
 	m.storage[key] = metrics
 	m.mu.Unlock()
-	return nil
+	return metrics, nil
 }
 
 func generateKey(name, mType string) string {

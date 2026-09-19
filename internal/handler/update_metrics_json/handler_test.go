@@ -15,6 +15,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// TODO проверять что пришла метрика
 func TestUpdateMetrics(t *testing.T) {
 	t.Parallel()
 
@@ -140,7 +141,7 @@ func TestUpdateMetrics(t *testing.T) {
 	}
 	ctrl := gomock.NewController(t)
 	m := mocks.NewMockService(ctrl)
-	m.EXPECT().Set(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil).AnyTimes()
+	m.EXPECT().Set(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, nil).AnyTimes()
 	h := NewHandler(m)
 	r := chi.NewRouter()
 	r.Post("/update/", h.ServeHTTP)

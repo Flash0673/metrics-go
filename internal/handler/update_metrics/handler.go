@@ -11,7 +11,7 @@ import (
 //go:generate mockgen -destination=mocks/mocks.go -package=mocks . Service
 
 type Service interface {
-	Set(name, mType string, value any) error
+	Set(name, mType string, value any) (*models.Metrics, error)
 }
 
 type Handler struct {
@@ -58,7 +58,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	err = h.svc.Set(n, t, value)
+	_, err = h.svc.Set(n, t, value)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return

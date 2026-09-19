@@ -11,7 +11,7 @@ import (
 //go:generate mockgen -destination=mocks/mocks.go -package=mocks . Service
 
 type Service interface {
-	Set(name, mType string, value any) error
+	Set(name, mType string, value any) (*models.Metrics, error)
 }
 
 type Handler struct {
@@ -67,11 +67,18 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	err = h.svc.Set(m.ID, m.MType, value)
+	res, err := h.svc.Set(m.ID, m.MType, value)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
+	resp, err := easyjson.Marshal(res)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(resp)
 }

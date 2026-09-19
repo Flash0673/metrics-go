@@ -11,7 +11,7 @@ import (
 
 type Repository interface {
 	Get(name, mType string) (*models.Metrics, error)
-	Set(name, mType string, metrics *models.Metrics) error
+	Set(name, mType string, metrics *models.Metrics) (*models.Metrics, error)
 	GetAll() []*models.Metrics
 }
 
@@ -23,10 +23,10 @@ func NewService(repo Repository) *Service {
 	return &Service{repo: repo}
 }
 
-func (s *Service) Set(name, mType string, value any) error {
+func (s *Service) Set(name, mType string, value any) (*models.Metrics, error) {
 	metrics, err := s.repo.Get(name, mType)
 	if err != nil && !errors.Is(err, repo_err.ErrNotFound) {
-		return err
+		return nil, err
 	}
 
 	switch mType {
@@ -37,7 +37,7 @@ func (s *Service) Set(name, mType string, value any) error {
 		newValue := metrics.GetDelta() + value.(int64)
 		metrics.Delta = &newValue
 	default:
-		return errors.New("unsupported metric type")
+		return nil, errors.New("unsupported metric type")
 	}
 
 	return s.repo.Set(name, mType, metrics)
