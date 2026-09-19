@@ -7,6 +7,7 @@ package mocks
 import (
 	reflect "reflect"
 
+	models "github.com/Flash0673/metrics-go/internal/model"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -34,11 +35,12 @@ func (m *MockService) EXPECT() *MockServiceMockRecorder {
 }
 
 // Set mocks base method.
-func (m *MockService) Set(arg0, arg1 string, arg2 interface{}) error {
+func (m *MockService) Set(arg0, arg1 string, arg2 interface{}) (*models.Metrics, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Set", arg0, arg1, arg2)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(*models.Metrics)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // Set indicates an expected call of Set.
