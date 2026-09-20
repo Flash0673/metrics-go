@@ -23,8 +23,7 @@ type Agent struct {
 
 func New(addr string, reportInterval, pollInterval time.Duration) *Agent {
 	return &Agent{
-		rw: &sync.RWMutex{},
-		// TODO add config
+		rw:             &sync.RWMutex{},
 		pollInterval:   pollInterval,
 		reportInterval: reportInterval,
 		client:         client.NewClient(addr).WithReportStrategy(client.Body),

@@ -77,7 +77,7 @@ func (c *Client) reportMetricsJson(metrics []dto.Metric) error {
 		_, err = c.httpClient.R().
 			SetHeader("Content-Type", contentType).
 			SetBody(body).
-			Post(fmt.Sprintf("%s/update", c.baseURL))
+			Post(fmt.Sprintf("%s/update/", c.baseURL))
 		if err != nil {
 			return err
 		}
