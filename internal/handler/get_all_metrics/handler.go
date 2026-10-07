@@ -32,8 +32,8 @@ func NewHandler(svc Service) *Handler {
 
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	metrics := h.svc.GetAll()
-	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
 	res := make([]string, 0, len(metrics))
 	for _, m := range metrics {
 		res = append(res, fmt.Sprintf(listElTmpl, fmt.Sprintf("%s: %v", m.GetName(), m.GetValue())))
