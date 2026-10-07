@@ -28,6 +28,9 @@ func main() {
 
 	// Мидлеваре логирования реквеста
 	mux.Use(middleware.RequestResponseLogging)
+	// Мидлеваре сжатия реквеста и респонса
+	mux.Use(middleware.CompressedReaderMiddleware)
+	mux.Use(middleware.CompressWriterMiddleware)
 
 	mux.Get("/", handlerAgg.GetAll.ServeHTTP)
 	mux.Post("/value/", handlerAgg.GetJSON.ServeHTTP)

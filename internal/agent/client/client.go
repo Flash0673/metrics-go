@@ -1,6 +1,8 @@
 package client
 
 import (
+	"bytes"
+	"compress/gzip"
 	"fmt"
 
 	"github.com/Flash0673/metrics-go/internal/agent/dto"
@@ -13,6 +15,8 @@ type ReportStrategy int
 const (
 	PathParams ReportStrategy = iota
 	Body
+
+	jsonHeader = "application/json"
 )
 
 type Client struct {
@@ -68,19 +72,38 @@ func (c *Client) reportMetrics(metrics []dto.Metric) error {
 }
 
 func (c *Client) reportMetricsJson(metrics []dto.Metric) error {
-	contentType := "application/json"
 	for _, m := range metrics {
-		body, err := easyjson.Marshal(m.ToModel())
+		req, err := c.prepareRequest(m)
 		if err != nil {
 			return err
 		}
-		_, err = c.httpClient.R().
-			SetHeader("Content-Type", contentType).
-			SetBody(body).
-			Post(fmt.Sprintf("%s/update/", c.baseURL))
+		_, err = req.Post(fmt.Sprintf("%s/update/", c.baseURL))
 		if err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+func (c *Client) prepareRequest(m dto.Metric) (*resty.Request, error) {
+	body, err := easyjson.Marshal(m.ToModel())
+	if err != nil {
+		return nil, err
+	}
+
+	compressed := &bytes.Buffer{}
+	gr := gzip.NewWriter(compressed)
+	defer gr.Close()
+
+	_, err = gr.Write(body)
+	if err != nil {
+		return nil, err
+	}
+
+	req := c.httpClient.R().
+		SetHeader("Content-Type", jsonHeader).
+		SetHeader("Content-Encoding", "gzip").
+		SetBody(compressed)
+
+	return req, nil
 }
