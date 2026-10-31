@@ -1,6 +1,7 @@
 package inmem_storage
 
 import (
+	"context"
 	"encoding/json"
 	"os"
 	"testing"
@@ -31,7 +32,7 @@ func TestNewMemStorage(t *testing.T) {
 
 		prepareTmpFile(tmpDir, storedMetrics)
 
-		s := NewMemStorage(true, tmpDir)
+		s := NewMemStorage(context.Background(), true, tmpDir, 0)
 		require.Equal(t, storedMetrics, s.storage)
 	})
 }
