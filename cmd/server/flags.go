@@ -1,8 +1,6 @@
 package main
 
 import (
-	"time"
-
 	"github.com/caarlos0/env/v11"
 	"github.com/spf13/pflag"
 )
@@ -12,7 +10,7 @@ var (
 	logLevel      string
 
 	// параметры сохранения в файл
-	storeInterval   time.Duration
+	storeInterval   int
 	fileStoragePath string
 	restore         bool
 )
@@ -22,15 +20,15 @@ type Config struct {
 	Addr     string `env:"ADDRESS"`
 	LogLevel string `env:"LOG_LEVEL"`
 
-	StoreInterval   time.Duration `env:"STORE_INTERVAL"`
-	FileStoragePath string        `env:"FILE_STORAGE_PATH"`
-	Restore         bool          `env:"RESTORE"`
+	StoreInterval   int    `env:"STORE_INTERVAL"`
+	FileStoragePath string `env:"FILE_STORAGE_PATH"`
+	Restore         bool   `env:"RESTORE"`
 }
 
 func initFlags() {
 	pflag.StringVarP(&runServerAddr, "addr", "a", ":8080", "server address")
 	pflag.StringVarP(&logLevel, "loglevel", "l", "info", "log level")
-	pflag.DurationVarP(&storeInterval, "store-interval", "i", 300*time.Second, "store interval")
+	pflag.IntVarP(&storeInterval, "store-interval", "i", 300, "store interval")
 	pflag.StringVarP(&fileStoragePath, "file-storage-path", "f", "/tmp/metrics-db.json", "file storage path")
 	pflag.BoolVarP(&restore, "restore", "r", true, "restore")
 	pflag.Parse()
@@ -48,7 +46,7 @@ func initFlags() {
 		logLevel = cfg.LogLevel
 	}
 
-	if cfg.StoreInterval != time.Duration(0) {
+	if cfg.StoreInterval != 0 {
 		storeInterval = cfg.StoreInterval
 	}
 

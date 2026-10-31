@@ -29,7 +29,7 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
-	repoAgg := repository.NewAggregator(ctx, restore, fileStoragePath, storeInterval)
+	repoAgg := repository.NewAggregator(ctx, restore, fileStoragePath, time.Duration(storeInterval)*time.Second)
 	svcAgg := service.NewAggregator(repoAgg)
 	handlerAgg := handler.NewAggregator(svcAgg)
 
