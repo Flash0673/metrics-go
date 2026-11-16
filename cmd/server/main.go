@@ -30,6 +30,7 @@ func main() {
 	if err != nil {
 		logger.Logger.Fatal("failed to init Postgres")
 	}
+	defer dbpool.Close()
 	logger.Logger.Info("Postgres initialized")
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
