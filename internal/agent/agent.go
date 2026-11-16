@@ -48,7 +48,6 @@ LOOP:
 			a.pollMetrics()
 		case <-reportTicker.C:
 			a.reportMetrics()
-		default:
 		}
 	}
 }

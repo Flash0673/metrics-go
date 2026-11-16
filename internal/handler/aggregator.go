@@ -4,8 +4,10 @@ import (
 	"github.com/Flash0673/metrics-go/internal/handler/get"
 	"github.com/Flash0673/metrics-go/internal/handler/get_all_metrics"
 	"github.com/Flash0673/metrics-go/internal/handler/get_json"
+	"github.com/Flash0673/metrics-go/internal/handler/ping"
 	"github.com/Flash0673/metrics-go/internal/handler/update_metrics"
 	"github.com/Flash0673/metrics-go/internal/handler/update_metrics_json"
+	"github.com/Flash0673/metrics-go/internal/repository"
 	"github.com/Flash0673/metrics-go/internal/service"
 )
 
@@ -15,14 +17,16 @@ type Aggregator struct {
 	Get               *get.Handler
 	GetJSON           *get_json.Handler
 	GetAll            *get_all_metrics.Handler
+	Ping              *ping.Handler
 }
 
-func NewAggregator(serviceAgg *service.Aggregator) *Aggregator {
+func NewAggregator(serviceAgg *service.Aggregator, repoAgg *repository.Aggregator) *Aggregator {
 	return &Aggregator{
 		UpdateMetrics:     update_metrics.NewHandler(serviceAgg.Metrics),
 		UpdateMetricsJson: update_metrics_json.NewHandler(serviceAgg.Metrics),
 		Get:               get.NewHandler(serviceAgg.Metrics),
 		GetJSON:           get_json.NewHandler(serviceAgg.Metrics),
 		GetAll:            get_all_metrics.NewHandler(serviceAgg.Metrics),
+		Ping:              ping.NewHandler(repoAgg.DB),
 	}
 }

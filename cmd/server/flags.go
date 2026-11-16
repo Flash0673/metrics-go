@@ -13,6 +13,9 @@ var (
 	storeInterval   int
 	fileStoragePath string
 	restore         bool
+
+	// postgres
+	db_dsn string
 )
 
 // Config .
@@ -23,6 +26,8 @@ type Config struct {
 	StoreInterval   int    `env:"STORE_INTERVAL"`
 	FileStoragePath string `env:"FILE_STORAGE_PATH"`
 	Restore         bool   `env:"RESTORE"`
+
+	DbDsn string `env:"DATABASE_DSN"`
 }
 
 func initFlags() {
@@ -31,6 +36,7 @@ func initFlags() {
 	pflag.IntVarP(&storeInterval, "store-interval", "i", 300, "store interval")
 	pflag.StringVarP(&fileStoragePath, "file-storage-path", "f", "/tmp/metrics-db.json", "file storage path")
 	pflag.BoolVarP(&restore, "restore", "r", true, "restore")
+	pflag.StringVarP(&db_dsn, "db-dsn", "d", "", "database DSN \n urlExample := \"postgres://username:password@localhost:5432/database_name\"")
 	pflag.Parse()
 
 	var cfg Config
@@ -56,5 +62,9 @@ func initFlags() {
 
 	if cfg.Restore {
 		restore = true
+	}
+
+	if cfg.DbDsn != "" {
+		db_dsn = cfg.DbDsn
 	}
 }

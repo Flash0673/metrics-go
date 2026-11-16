@@ -14,6 +14,7 @@ import (
 	"github.com/Flash0673/metrics-go/pkg/logging/logger"
 	"github.com/Flash0673/metrics-go/pkg/logging/middleware"
 	"github.com/go-chi/chi/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/zap"
 )
 
@@ -23,15 +24,20 @@ func main() {
 	if err != nil {
 		logger.Logger.Fatal("failed to init logger")
 	}
-
 	logger.Logger.Info("logger initialized")
+
+	dbpool, err := pgxpool.New(context.Background(), db_dsn)
+	if err != nil {
+		logger.Logger.Fatal("failed to init Postgres")
+	}
+	logger.Logger.Info("Postgres initialized")
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
-	repoAgg := repository.NewAggregator(ctx, restore, fileStoragePath, time.Duration(storeInterval)*time.Second)
+	repoAgg := repository.NewAggregator(ctx, dbpool, restore, fileStoragePath, time.Duration(storeInterval)*time.Second)
 	svcAgg := service.NewAggregator(repoAgg)
-	handlerAgg := handler.NewAggregator(svcAgg)
+	handlerAgg := handler.NewAggregator(svcAgg, repoAgg)
 
 	mux := chi.NewRouter()
 
@@ -46,6 +52,7 @@ func main() {
 	mux.Get("/value/{type}/{name}", handlerAgg.Get.ServeHTTP)
 	mux.Post("/update/{type}/{name}/{value}", handlerAgg.UpdateMetrics.ServeHTTP)
 	mux.Post("/update/", handlerAgg.UpdateMetricsJson.ServeHTTP)
+	mux.Get("/ping", handlerAgg.Ping.ServeHTTP)
 
 	srv := &http.Server{
 		Addr:    runServerAddr,
